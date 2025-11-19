@@ -1,18 +1,14 @@
-// API endpoints - Using Vite proxy in development, direct URLs in production
+// API endpoints - Using Vite proxy in development, Vercel serverless functions in production
 // In development, Vite proxy forwards these to the actual APIs
-// In production, use direct API URLs
+// In production, Vercel serverless functions proxy the requests to avoid CORS issues
 const isDevelopment = typeof window !== 'undefined' && 
   (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
-const AZURE_ANALYSIS_API = isDevelopment 
-  ? '/api/azure-analysis' 
-  : 'https://raws.e42.ai/edith/api/core/documents/v3/azure-analysis';
-const LLM_TEXT_API = isDevelopment
-  ? '/api/llm-text'
-  : 'https://samarjit.lightinfosys.com/external_api/e42_llm_text';
-const TRANSLATION_API = isDevelopment
-  ? '/api/translate-json'
-  : 'https://samarjit.lightinfosys.com/external_api/translate_json_to_english';
+// Use proxy endpoints in both development and production
+// Vite proxy handles it in dev, Vercel serverless functions handle it in production
+const AZURE_ANALYSIS_API = '/api/azure-analysis';
+const LLM_TEXT_API = '/api/llm-text';
+const TRANSLATION_API = '/api/translate-json';
 
 const INVOICE_STRUCTURING_PROMPT = `You are an invoice-structuring model. 
 
@@ -189,10 +185,7 @@ export async function uploadFileToAzureAnalysis(file: File): Promise<string> {
   }
 
   const headers: HeadersInit = {};
-  // Add Cookie header in production (in development, Vite proxy handles it)
-  if (!isDevelopment) {
-    headers['Cookie'] = 'elementor_split_test_client_id=c030c8dc-4c4b-48cc-badc-29301a57912a';
-  }
+  // Cookie header is handled by the serverless function proxy
 
   const response = await fetch(AZURE_ANALYSIS_API, {
     method: 'POST',
